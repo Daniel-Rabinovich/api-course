@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <form action="" method="POST">
+        <p>
+        <h1>Create post</h1>
+        </p>
+
+        <p>
+        Title:
+        <input type="text" name="title"/>
+        </p>
+
+        <p>
+        Location:
+        <select id="places" name="places">
+            {% for key in data["places"].keys() %}
+                <option value="{{key}}">{{data["places"][key]}}</option>
+            {% endfor %}
+        </select>
+        </p>
+
+        <p>
+        Category:
+        <select id="categories" name="categories">
+            {% for key in data["categories"].keys() %}
+                <option value="{{key}}">{{data["categories"][key]}}</option>
+            {% endfor %}
+        </select>
+        </p>
+
+        <p>
+        Description:<br>
+        <textarea name="desc"></textarea>
+        </p>
+
+        <p>
+        Contact information:<br>
+        <textarea name="contact"></textarea>
+        </p>
+
+        <p>
+        Price:<br>
+        <input type="number" name="price"/>
+        </p>
+
+        <p>
+        Link to edit post:
+        /edit/{{data['link']}}
+        <input type="text" name='link' value="{{data['link']}}" hidden>
+        </p>
+
+        <p>
+        <input type="submit" value="Send" name="submit" class="btn btn-primary"/>
+        </p>
+    </form>
+
+
+
+
+{% endblock %}

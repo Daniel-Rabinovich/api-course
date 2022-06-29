@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %} 
+
+    <form action="" method="GET">
+        <p>Search:
+        <select id="place" name="place">
+            {% for key in data["places"].keys() %}
+                <option value="{{key}}">{{data["places"][key]}}</option>
+            {% endfor %}
+        </select>
+
+        <select id="category" name="category">
+            {% for key in data["categories"].keys() %}
+                <option value="{{key}}">{{data["categories"][key]}}</option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="free"/>
+        <input type="submit" value="Search" class="btn btn-primary"/>
+    </form>
+
+
+    {% for post in data["posts"] %}
+        <div class="card mt-2">
+            <div class="card-body">
+                <h2>{{post[1]}}</h2>
+                date: {{post[5]}}<br>
+                location: {{data["places"][post[2]]}}<br>
+                category: {{data["categories"][post[3]]}}<br>
+                price: {{post[6]}}$<br>
+                contact: {{post[7]}}<br>
+                description:<br> {{post[4]}}
+            </div>
+        </div>
+
+    {% endfor %}
+
+
+{% endblock %}
