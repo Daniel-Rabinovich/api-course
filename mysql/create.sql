@@ -44,5 +44,6 @@ INSERT INTO places (name) VALUES ('Haifa');
 INSERT INTO places (name) VALUES ('Beer Sheva');
 INSERT INTO categories (name) VALUES ('Electronics');
 INSERT INTO categories (name) VALUES ('Furniture');
-INSERT INTO posts (title, place, category, text, date, price, contact, link) VALUES ("Used phone", 2, 2, "This is just a test!", now(), 500, "+972 000000000", "a");
-INSERT INTO posts (title, place, category, text, date, price, contact, link) VALUES ("Used Laptop", 3, 2, "This is another test", now(), 999, "+972 000000000", "b");
+INSERT INTO posts (title, place, category, text, date, price, contact, link) VALUES ("Used phone", 2, 2, "Has cracked screen.", now(), 500, "+972 000000000", "a");
+INSERT INTO posts (title, place, category, text, date, price, contact, link) VALUES ("Used Laptop", 3, 1, "Lightly used.", now(), 999, "+972 000000000", "b");
+INSERT INTO posts (title, place, category, text, date, price, contact, link) VALUES ("Used Closet", 1, 2, "Paint faded.", now(), 999, "+972 000000000", "c");
