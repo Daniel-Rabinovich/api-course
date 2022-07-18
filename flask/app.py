@@ -5,7 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 r = redis.Redis(host="127.0.0.1",port=6379)
-
+r.flushdb()
 
 def get_connection():
     return mysql.connector.connect(
@@ -29,23 +29,59 @@ def index():
         "places": {},
         "posts": [],
     }
+    
+    #
+    # check if categories in cache
+    # if not get them from db
+    #
+    
+    if r.llen("categories") == 0:
+        # connect to db
+        mydb = get_connection()
+        mycursor = mydb.cursor()
+        
+        mycursor.execute("SELECT * FROM categories")
+        myresult = mycursor.fetchall()
+        for x in myresult: 
+            # populate cahce with categories
+            r.rpush("categories",x[0])
+            r.hset(f"category:{int(x[0])}","id",x[0])
+            r.hset(f"category:{int(x[0])}","name",x[1])
+            data["categories"][x[0]] = x[1]
+    else:   
+        for category_id in r.lrange("categories",0,-1):       
+            c_id = int(category_id)
+            data["categories"][c_id] = r.hget(f"category:{c_id}","name").decode('utf-8')
+    
 
-    # connect to db
-    mydb = get_connection()
-    mycursor = mydb.cursor()
-
-    mycursor.execute("SELECT * FROM categories")
-    myresult = mycursor.fetchall()
-    for x in myresult:
-        data["categories"][x[0]] = x[1]
-
-    # get places
-    mycursor.execute("SELECT * FROM places")
-    myresult = mycursor.fetchall()
-    for x in myresult:
-        data["places"][x[0]] = x[1]
-
-    # get posts
+    #
+    # check if places in cache
+    # if not get them
+    #
+    
+    if r.llen("places") == 0:
+        # connect to db
+        mydb = get_connection()
+        mycursor = mydb.cursor()
+        
+        mycursor.execute("SELECT * FROM places")
+        myresult = mycursor.fetchall()
+        for x in myresult: 
+            # populate cahce with categories
+            r.rpush("places",x[0])
+            r.hset(f"place:{x[0]}","id",x[0])
+            r.hset(f"place:{x[0]}","name",x[1])
+            data["places"][x[0]] = x[1]
+    else: 
+        for place_id in r.lrange("places",0,-1): 
+            p_id = int(place_id)
+            data["places"][p_id] = r.hget(f"place:{p_id}","name").decode('utf-8')
+    
+    #
+    # get latest posts from cache 
+    # or from db if non
+    #
+    
     flag_add = False
     query = f"SELECT * FROM posts"
     if search_category or search_place != "":
