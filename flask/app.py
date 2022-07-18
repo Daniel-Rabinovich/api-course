@@ -122,30 +122,59 @@ def index():
     #
     
     # GET parameters
-    search_place = request.args.get('place', '')
-    search_category = request.args.get('category', '')
-    search_free = request.args.get('free', '')
+    s_place = request.args.get('place', '')
+    s_category = request.args.get('category', '')
+    s_free = request.args.get('free', '')
     
-    # check cache has posts
-    if r.llen("posts") == 0:
-        data["posts"] = add_posts_to_cache()
+    if s_place == '':
+        # main page
+        # check cache has posts
+        if r.llen("posts") == 0:
+            data["posts"] = add_posts_to_cache()
+        else:
+            r.ltrim("posts",0,10)
+            for post_id in r.lrange("posts",0,9): 
+                post_id = int(post_id)
+                post_data = r.hmget(f"post:{post_id}",
+                    ("id","title","place","category","text","date","price","contact","link"))
+                data["posts"][post_id] = dict()
+                data["posts"][post_id]["id"] = int(post_data[0])
+                data["posts"][post_id]["title"] = post_data[1].decode('utf-8')
+                data["posts"][post_id]["place"] = int(post_data[2])
+                data["posts"][post_id]["category"] = int(post_data[3])
+                data["posts"][post_id]["text"] = post_data[4].decode('utf-8')
+                data["posts"][post_id]["date"] = post_data[5].decode('utf-8')
+                data["posts"][post_id]["price"] = int(post_data[6])
+                data["posts"][post_id]["contact"] = post_data[7].decode('utf-8')
+                data["posts"][post_id]["link"] = post_data[8].decode('utf-8')
+                 
     else:
-        r.ltrim("posts",0,10)
-        for post_id in r.lrange("posts",0,9): 
-            post_id = int(post_id)
-            post_data = r.hmget(f"post:{post_id}",
-                ("id","title","place","category","text","date","price","contact","link"))
-            data["posts"][post_id] = dict()
-            data["posts"][post_id]["id"] = int(post_data[0])
-            data["posts"][post_id]["title"] = post_data[1].decode('utf-8')
-            data["posts"][post_id]["place"] = int(post_data[2])
-            data["posts"][post_id]["category"] = int(post_data[3])
-            data["posts"][post_id]["text"] = post_data[4].decode('utf-8')
-            data["posts"][post_id]["date"] = post_data[5].decode('utf-8')
-            data["posts"][post_id]["price"] = int(post_data[6])
-            data["posts"][post_id]["contact"] = post_data[7].decode('utf-8')
-            data["posts"][post_id]["link"] = post_data[8].decode('utf-8')
-                  
+         # connect to db
+        mydb = get_connection()
+        mycursor = mydb.cursor()
+        
+        # user used search function 
+        query = f"SELECT * FROM posts WHERE category = {s_category} AND place = {s_place}"
+        if s_free != "": 
+            query += f" AND text LIKE '%{s_free}%' or title LIKE '%{s_free}%'"
+        query += f" ORDER BY date DESC"
+
+        mycursor.execute(query)
+        myresult = mycursor.fetchall()
+        for x in myresult:
+            post_data = {
+                "id": x[0]
+                ,"title": x[1]
+                ,"place": x[2]
+                ,"category": x[3]
+                ,"text": x[4]
+                ,"date": str(x[5])
+                ,"price": x[6]
+                ,"contact": x[7]
+                ,"link": x[8]
+            }
+            data["posts"][x[0]] = post_data
+        
     return render_template("index.html", data = data)
 
 @app.route("/create", methods=['POST','GET'])
