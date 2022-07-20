@@ -11,3 +11,11 @@ docker exec -i data sh -c 'exec mysql -uroot -p123' < create.sql
 ```
 docker run --name cache -d -p 6379:6379 redis
 ```
+
+# Flask
+```
+cd flask
+pip install -r requirements.txt
+python -m flask run
+```
+
